@@ -57,7 +57,7 @@ jobs:
           docker run \
             --detach \
             --name ark-ascended-server-test \
-            --mount type=bind,source=$(shell pwd)/local-test,target=/home/steam/ark/ShooterGame/Saved \
+            --mount type=bind,source=$(pwd)/local-test,target=/home/steam/ark/ShooterGame/Saved \
             --env=SERVER_MAP=TheIsland_WP \
             --env=SESSION_NAME=Ark-Ascended-GitHub-Test \
             --env=SERVER_PASSWORD=foo \
@@ -85,7 +85,7 @@ jobs:
           podman run \
             --detach \
             --name ark-ascended-server-test \
-            --mount type=bind,source=$(shell pwd)/local-test,target=/home/steam/ark/ShooterGame/Saved \
+            --mount type=bind,source=$(pwd)/local-test,target=/home/steam/ark/ShooterGame/Saved \
             --env=SERVER_MAP=TheIsland_WP \
             --env=SESSION_NAME=Ark-Ascended-GitHub-Test \
             --env=SERVER_PASSWORD=foo \
