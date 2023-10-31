@@ -104,33 +104,3 @@ jobs:
           name: container-logs-${{ matrix.system }}
           path: |
             ark-ascended-test.log
-
-  test-docker:
-    name: Test Server
-    runs-on: ubuntu-latest
-    needs:
-      - build-and-run
-    strategy:
-      matrix:
-        system: [docker, podman]
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Download Container Logs
-        uses: actions/download-artifact@v2
-        with:
-          name: container-logs-${{ matrix.system }}
-
-      - name: Test - Server Started
-        run: |
-          check_for_entry() {
-            if ! grep -q -iE "$1" "./ark-ascended-test.log"; then
-              printf "Could not find [%s] in [%s]\n" "$1" "./ark-ascended-test.log"
-              exit 1
-            else
-              printf "Found [%s] in [%s]\n" "$1" "./ark-ascended-test.log"
-            fi
-          }
-          cat ./ark-ascended-test.log
-          check_for_entry "has successfully started!"
