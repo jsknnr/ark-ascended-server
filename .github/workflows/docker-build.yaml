@@ -66,8 +66,8 @@ jobs:
             --env=QUERY_PORT=27015 \
             docker.io/sknnr/ark-ascended-server:${{ steps.variables.outputs.datetime }}
           sleep 60
-          docker logs ark-ascended-test > ./ark-ascended-test.log
-          docker stop ark-ascended-test && docker rm ark-ascended-test
+          docker logs ark-ascended-server-test > ./ark-ascended-test.log
+          docker stop ark-ascended-server-test && docker rm ark-ascended-test
 
       - name: Build the Podman Image
         if: ${{ success() && matrix.system == 'podman' }}
@@ -94,8 +94,8 @@ jobs:
             --env=QUERY_PORT=27015 \
             docker.io/sknnr/ark-ascended-server:${{ steps.variables.outputs.datetime }}
           sleep 60
-          podman logs ark-ascended-test > ./ark-ascended-test.log
-          podman stop ark-ascended-test && podman rm ark-ascended-test
+          podman logs ark-ascended-server-test > ./ark-ascended-test.log
+          podman stop ark-ascended-server-test && podman rm ark-ascended-test
 
       - name: Upload Container Logs
         if: ${{ always() }}
