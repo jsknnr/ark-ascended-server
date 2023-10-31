@@ -65,7 +65,7 @@ jobs:
             --env=GAME_PORT=7777 \
             --env=QUERY_PORT=27015 \
             docker.io/sknnr/ark-ascended-server:${{ steps.variables.outputs.datetime }}
-          sleep 300
+          sleep 360
           docker logs ark-ascended-server-test > ./ark-ascended-test.log
           docker stop ark-ascended-server-test && docker rm ark-ascended-server-test
 
@@ -93,7 +93,7 @@ jobs:
             --env=GAME_PORT=7777 \
             --env=QUERY_PORT=27015 \
             docker.io/sknnr/ark-ascended-server:${{ steps.variables.outputs.datetime }}
-          sleep 300
+          sleep 360
           podman logs ark-ascended-server-test > ./ark-ascended-test.log
           podman stop ark-ascended-server-test && podman rm ark-ascended-server-test
 
@@ -132,4 +132,5 @@ jobs:
               printf "Found [%s] in [%s]\n" "$1" "./ark-ascended-test.log"
             fi
           }
+          cat ./ark-ascended-test.log
           check_for_entry "has successfully started!"
