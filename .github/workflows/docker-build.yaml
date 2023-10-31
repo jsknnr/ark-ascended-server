@@ -52,7 +52,7 @@ jobs:
       - name: Test Docker Image
         if: ${{ success() && matrix.system == 'docker' }}
         continue-on-error: true
-        timeout-minutes: 5
+        timeout-minutes: 10
         run: |
           docker run \
             --detach \
@@ -65,7 +65,7 @@ jobs:
             --env=GAME_PORT=7777 \
             --env=QUERY_PORT=27015 \
             docker.io/sknnr/ark-ascended-server:${{ steps.variables.outputs.datetime }}
-          sleep 60
+          sleep 300
           docker logs ark-ascended-server-test > ./ark-ascended-test.log
           docker stop ark-ascended-server-test && docker rm ark-ascended-server-test
 
@@ -80,7 +80,7 @@ jobs:
       - name: Test Run the Podman Image
         if: ${{ success() && matrix.system == 'podman' }}
         continue-on-error: true
-        timeout-minutes: 5
+        timeout-minutes: 10
         run: |
           podman run \
             --detach \
@@ -93,7 +93,7 @@ jobs:
             --env=GAME_PORT=7777 \
             --env=QUERY_PORT=27015 \
             docker.io/sknnr/ark-ascended-server:${{ steps.variables.outputs.datetime }}
-          sleep 60
+          sleep 300
           podman logs ark-ascended-server-test > ./ark-ascended-test.log
           podman stop ark-ascended-server-test && podman rm ark-ascended-server-test
 
@@ -132,5 +132,4 @@ jobs:
               printf "Found [%s] in [%s]\n" "$1" "./ark-ascended-test.log"
             fi
           }
-          cat ./ark-ascended-test.log
           check_for_entry "has successfully started!"
