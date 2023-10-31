@@ -67,7 +67,7 @@ jobs:
             docker.io/sknnr/ark-ascended-server:${{ steps.variables.outputs.datetime }}
           sleep 60
           docker logs ark-ascended-server-test > ./ark-ascended-test.log
-          docker stop ark-ascended-server-test && docker rm ark-ascended-test
+          docker stop ark-ascended-server-test && docker rm ark-ascended-server-test
 
       - name: Build the Podman Image
         if: ${{ success() && matrix.system == 'podman' }}
@@ -95,7 +95,7 @@ jobs:
             docker.io/sknnr/ark-ascended-server:${{ steps.variables.outputs.datetime }}
           sleep 60
           podman logs ark-ascended-server-test > ./ark-ascended-test.log
-          podman stop ark-ascended-server-test && podman rm ark-ascended-test
+          podman stop ark-ascended-server-test && podman rm ark-ascended-server-test
 
       - name: Upload Container Logs
         if: ${{ always() }}
@@ -132,5 +132,5 @@ jobs:
               printf "Found [%s] in [%s]\n" "$1" "./ark-ascended-test.log"
             fi
           }
-
+          cat ./ark-ascended-test.log
           check_for_entry "has successfully started!"
