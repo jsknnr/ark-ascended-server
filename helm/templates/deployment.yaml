@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ .Chart.Name }}-server"
+  labels:
+    app: "{{ .Chart.Name }}-server"
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "{{ .Chart.Name }}-server"
+      release: "{{ .Release.Name }}"
+  template:
+    metadata:
+      labels:
+        app: "{{ .Chart.Name }}-server"
+        release: "{{ .Release.Name }}"
+    spec:
+      containers:
+      - name: "{{ .Chart.Name }}-server"
+        image: "{{ .Values.image }}:{{ .Values.imageTag }}"
+        imagePullPolicy: Always
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+        env:
+        - name: SESSION_NAME
+          value: {{ .Values.env.sessionName | quote }}
+        - name: SERVER_MAP
+          value: {{ .Values.env.serverMap | quote }}
+        - name: SERVER_PASSWORD
+          value: {{ .Values.env.serverPassword | quote }}
+        - name: SERVER_ADMIN_PASSWORD
+          value: {{ .Values.env.serverAdminPassword | quote }}
+        - name: GAME_PORT
+          value: {{ .Values.env.gamePort | quote }}
+        - name: QUERY_PORT
+          value: {{ .Values.env.queryPort | quote }}
+        ports:
+        - name: game-port
+          containerPort: {{ .Values.env.gamePort | int }}
+          protocol: UDP
+        - name: query-port
+          containerPort: {{ .Values.env.queryPort | int }}
+          protocol: UDP
+        volumeMounts:
+        - name: data
+          mountPath: /home/steam/ark/ShooterGame/Saved
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: "{{ .Chart.Name }}-data"

@@ -1,0 +1,20 @@
+image: sknnr/ark-ascended-server
+imageTag: latest
+# serviceType should be LoadBalancer or NodePort
+serviceType: LoadBalancer
+resources:
+  requests:
+    memory: 24G
+    cpu: 8.0
+volumes:
+  dataPVC:
+    size: 50Gi
+  storageClassName: ""
+env:
+  sessionName: Ark Ascended Kubernetes Server
+  serverMap: TheIsland_WP
+  serverPassword: foo
+  serverAdminPassword: foo
+  gamePort: 7777
+  queryPort: 27015
+  
