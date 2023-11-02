@@ -16,5 +16,3 @@ env:
   serverPassword: foo
   serverAdminPassword: foo
   gamePort: 7777
-  queryPort: 27015
-  
