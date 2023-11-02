@@ -36,14 +36,9 @@ spec:
           value: {{ .Values.env.serverAdminPassword | quote }}
         - name: GAME_PORT
           value: {{ .Values.env.gamePort | quote }}
-        - name: QUERY_PORT
-          value: {{ .Values.env.queryPort | quote }}
         ports:
         - name: game-port
           containerPort: {{ .Values.env.gamePort | int }}
-          protocol: UDP
-        - name: query-port
-          containerPort: {{ .Values.env.queryPort | int }}
           protocol: UDP
         volumeMounts:
         - name: data

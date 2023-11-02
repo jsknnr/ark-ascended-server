@@ -18,10 +18,8 @@ The processes within the container do **NOT** run as root. Everything runs as th
 | Port | Protocol | Default |
 | ---- | -------- | ------- |
 | Game Port | UDP | 7777 |
-| Client Port | UDP | 7778 |
-| Query Port | UDP | 27015 |
 
-These are the ports used by the container. EACH of them MUST be open on your router and forwarded to the container. If you are not able to see your server on the server list or you are unable to connect, simply put, you are doing something wrong. There is nothing wrong with the container when it comes ot this. There are too many models and configurations of routers out there for me to provide examples. Refer to the documentation on your router and do some research on how port forwarding works if you run into issues. 
+This is the port required by Ark: SA. If you have read elsewhere about the query port, that is deprecated and not used in the Survival Ascended version of Ark. If you are not able to see your server on the server list or you are unable to connect, simply put, you are doing something wrong. There is nothing wrong with the container when it comes ot this. There are too many models and configurations of routers out there for me to provide examples. Refer to the documentation on your router and do some research on how port forwarding works if you run into issues. 
 
 If you are still running into issues, there is one potential cause that may be out of your control that I feel I must mention. Some ISPs (internet service providers) utilize a technology called CNAT/CGNAT (Carrier/Carrier Grade NAT). Briefly put, this allows your ISP to use a singular public IP address for many customers. Due to the sharing of a single public IP address, this can interfere or prevent you from port forwarding from your public IP address. If you believe this is the case for you, you should contact your ISP and ask if they are doing this. You may be able to request a static public IP address, though your ISP will likely charge extra for this.
 
@@ -34,9 +32,6 @@ If you are still running into issues, there is one potential cause that may be o
 | SERVER_PASSWORD | The password to join your server | ChooseSomethingClever |
 | SERVER_ADMIN_PASSWORD | The password for utilizing admin functions | GodModeOrSomething |
 | GAME_PORT | This is the port that the server accepts incoming traffic on | 7777 |
-| QUERY_PORT | This is for Steam's server browser. This may have been deprecated but I implemented it anyway | 27015 |
-
-A keen eye may have noticed that the `Client Port` which is listed under the Ports section of this guide is not listed as an environment variable. This is because the client port cannot be configured. The client port is always Game Port + 1. So if Game Port is 7777, client port will be 7778. Make sure the client port is forwarded from your router and published by the container.
 
 ### Docker
 
@@ -49,14 +44,11 @@ docker run \
   --name Ark-Ascended-Server \
   --mount type=bind,source=$(pwd)/ark-persistent-data,target=/home/steam/ark/ShooterGame/Saved \
   --publish 7777:7777/udp \
-  --publish 7778:7778/udp \
-  --publish 27015:27015/udp \
   --env=SERVER_MAP=TheIsland_WP \
   --env=SESSION_NAME="My Ark Ascended Server" \
   --env=SERVER_PASSWORD="ChangeThisPlease" \
   --env=SERVER_ADMIN_PASSWORD="AlsoChangeThis" \
   --env=GAME_PORT=7777 \
-  --env=QUERY_PORT=27015 \
   sknnr/ark-ascended-server:latest
 ```
 

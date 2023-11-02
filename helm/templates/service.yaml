@@ -15,20 +15,11 @@ spec:
     port: {{ .Values.env.gamePort | int }}
     targetPort: game-port
     protocol: UDP
-  - name: query-port
-    port: {{ .Values.env.queryPort | int | add 1 }}
-    targetPort: query-port
-    protocol: UDP
   {{- else }}
   - name: game-port
     port: {{ .Values.env.gamePort | int }}
     targetPort: game-port
     nodePort: {{ .Values.env.gamePort | int }}
-    protocol: UDP
-  - name: query-port
-    port: {{ .Values.env.queryPort | int | add 1 }}
-    targetPort: query-port
-    nodePort: {{ .Values.env.queryPort | int | add 1 }}
     protocol: UDP
   {{- end }}
   selector:
