@@ -3,7 +3,7 @@ FROM debian:12
 ENV DEBIAN_FRONTEND "noninteractive"
 ENV STEAM_PATH "/home/steam/.local/share/Steam"
 ENV ARK_PATH "/home/steam/ark"
-ENV GE_PROTON_VERSION "8-21"
+ENV GE_PROTON_VERSION "8-23"
 ENV GE_PROTON_URL "https://github.com/GloriousEggroll/proton-ge-custom/releases/download/GE-Proton${GE_PROTON_VERSION}/GE-Proton${GE_PROTON_VERSION}.tar.gz"
 ENV STEAM_COMPAT_CLIENT_INSTALL_PATH "$STEAM_PATH"
 ENV STEAM_COMPAT_DATA_PATH "$STEAM_PATH/steamapps/compatdata/2430930"
@@ -27,8 +27,6 @@ RUN groupadd -g 1000 steam \
     && locale-gen \
     && dpkg --add-architecture i386 \
     && sed -i 's#^Components: .*#Components: main non-free contrib#g' /etc/apt/sources.list.d/debian.sources \
-    && curl -s http://repo.steampowered.com/steam/archive/stable/steam.gpg > /usr/share/keyrings/steam.gpg \
-    && echo "deb [arch=amd64,i386 signed-by=/usr/share/keyrings/steam.gpg] http://repo.steampowered.com/steam/ stable steam" > /etc/apt/sources.list.d/steam.list \
     && echo steam steam/question select "I AGREE" | debconf-set-selections \
     && echo steam steam/license note '' | debconf-set-selections \
     && apt-get update \

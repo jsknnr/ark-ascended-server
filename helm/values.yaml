@@ -16,3 +16,7 @@ env:
   serverPassword: foo
   serverAdminPassword: foo
   gamePort: 7777
+  rconPort: ""
+  mods: ""
+  extraFlags: ""
+  extraSettings: ""
