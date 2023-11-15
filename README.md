@@ -27,7 +27,7 @@ If you are still running into issues, there is one potential cause that may be o
 ### Environment Variables
 
 | Name | Description | Default | Required |
-| ---- | ----------- | ------- |
+| ---- | ----------- | ------- | -------- |
 | SERVER_MAP | The map that the server runs | TheIsland_WP | True |
 | SESSION_NAME | The name for you server/session | None | True |
 | SERVER_PASSWORD | The password to join your server | None | True |
