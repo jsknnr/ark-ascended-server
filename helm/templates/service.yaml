@@ -15,12 +15,25 @@ spec:
     port: {{ .Values.env.gamePort | int }}
     targetPort: game-port
     protocol: UDP
+  {{- if ne .Values.env.rconPort "" }}
+  - name: rcon-port
+    port: {{ .Values.env.rconPort | int }}
+    targetPort: rcon-port
+    protocol: TCP
+  {{- end }}
   {{- else }}
   - name: game-port
     port: {{ .Values.env.gamePort | int }}
     targetPort: game-port
     nodePort: {{ .Values.env.gamePort | int }}
     protocol: UDP
+  {{- if ne .Values.env.rconPort "" }}
+  - name: rcon-port
+    port: {{ .Values.env.rconPort | int }}
+    targetPort: rcon-port
+    nodePort: {{ .Values.env.rconPort | int }}
+    protocol: TCP
+  {{- end }}
   {{- end }}
   selector:
     app: "{{ .Chart.Name }}-server"

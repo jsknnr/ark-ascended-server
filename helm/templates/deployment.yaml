@@ -36,10 +36,31 @@ spec:
           value: {{ .Values.env.serverAdminPassword | quote }}
         - name: GAME_PORT
           value: {{ .Values.env.gamePort | quote }}
+        {{- if ne .Values.env.rconPort "" }}
+        - name: RCON_PORT
+          value: {{ .Values.env.rconPort }}
+        {{- end }}
+        {{- if ne .Values.env.mods "" }}
+        - name: MODS
+          value: {{ .Values.env.mods }}
+        {{- end }}
+        {{- if ne .Values.env.extraFlags "" }}
+        - name: EXTRA_FLAGS
+          value: {{ .Values.env.extraFlags }}
+        {{- end }}
+        {{- if ne .Values.env.extraSettings "" }}
+        - name: EXTRA_SETTINGS
+          value: {{ .Values.env.extraSettings }}
+        {{- end }}
         ports:
         - name: game-port
           containerPort: {{ .Values.env.gamePort | int }}
           protocol: UDP
+        {{- if ne .Values.env.rconPort "" }}
+        - name: rcon-port
+          containerPort: {{ .Values.env.rconPort }}
+          protocol: TCP
+        {{- end }}
         volumeMounts:
         - name: data
           mountPath: /home/steam/ark/ShooterGame/Saved
