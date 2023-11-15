@@ -3,7 +3,7 @@ FROM debian:12
 ENV DEBIAN_FRONTEND "noninteractive"
 ENV STEAM_PATH "/home/steam/.local/share/Steam"
 ENV ARK_PATH "/home/steam/ark"
-ENV GE_PROTON_VERSION "8-21"
+ENV GE_PROTON_VERSION "8-22"
 ENV GE_PROTON_URL "https://github.com/GloriousEggroll/proton-ge-custom/releases/download/GE-Proton${GE_PROTON_VERSION}/GE-Proton${GE_PROTON_VERSION}.tar.gz"
 ENV STEAM_COMPAT_CLIENT_INSTALL_PATH "$STEAM_PATH"
 ENV STEAM_COMPAT_DATA_PATH "$STEAM_PATH/steamapps/compatdata/2430930"
