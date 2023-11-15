@@ -44,7 +44,7 @@ if [ -n "${EXTRA_FLAGS}" ]; then
 fi
 
 if [ -n "${MODS}" ]; then
-    LAUNCH_COMMAND="${LAUNCH_COMMAND} ${MODS}"
+    LAUNCH_COMMAND="${LAUNCH_COMMAND} -mods=${MODS}"
 fi
 
 echo ""

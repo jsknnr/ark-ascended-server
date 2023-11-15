@@ -34,8 +34,8 @@ If you are still running into issues, there is one potential cause that may be o
 | SERVER_ADMIN_PASSWORD | The password for utilizing admin functions | None | True |
 | GAME_PORT | This is the port that the server accepts incoming traffic on | 7777 | True |
 | RCON_PORT | The port for the RCON service to listen on | 27020 | False |
-| MODS | Comma separated list of Curse Forge Mod IDs. Example: ModId1,ModId2,etc | None | False |
-| EXTRA_FLAGS | Space separated list of additional server start flags. Example: -NoBattleEye -ForceAllowCaveFlyers | None | False |
+| MODS | Comma separated list of CurseForge project IDs. Example: ModId1,ModId2,etc | None | False |
+| EXTRA_FLAGS | Space separated list of additional server start flags. Example: -NoBattlEye -ForceAllowCaveFlyers | None | False |
 | EXTRA_SETTINGS | ? Separated list of additional server settings. Example: ?serverPVE=True?ServerHardcore=True | None | False |
 
 ### Docker
@@ -63,7 +63,7 @@ To include non-required arguments just add a new `--env=` line to the above scri
 To use RCON you must both publish the port and add the environment variable.
 It should go without saying but, the environment variables for RCON (if you are using RCON) and Game Port should match the published ports.
 
-The first line of the above creates a new directory called `ark-persistent-data` in the directory you are currently in. This is the directory that will be mounted into the container that will contain your server config files and the save world. If you delete the container, this directory will persist, keeping your config files and save data.
+The first line of the above creates a new directory called `ark-persistent-data` in the directory you are currently in. This is the directory that will be mounted into the container that will contain your server config files and the save world. If you delete the container, this directory will persist, keeping your config files and save data. If you delete this folder, you will lose your world save.
 
 Depending on the performance of the computer/server where you are running the container, it may take a few minutes for the server to fully start and appear on the server list. Be sure to select unofficial servers from the list and tick the box that shows password protected servers.
 
