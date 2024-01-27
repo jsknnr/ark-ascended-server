@@ -1,15 +1,18 @@
 FROM debian:12
 
+ARG CONTAINER_GID=10000
+ARG CONTAINER_UID=10000
+
 ENV DEBIAN_FRONTEND "noninteractive"
 ENV STEAM_PATH "/home/steam/.local/share/Steam"
 ENV ARK_PATH "/home/steam/ark"
-ENV GE_PROTON_VERSION "8-23"
+ENV GE_PROTON_VERSION "8-27"
 ENV GE_PROTON_URL "https://github.com/GloriousEggroll/proton-ge-custom/releases/download/GE-Proton${GE_PROTON_VERSION}/GE-Proton${GE_PROTON_VERSION}.tar.gz"
 ENV STEAM_COMPAT_CLIENT_INSTALL_PATH "$STEAM_PATH"
 ENV STEAM_COMPAT_DATA_PATH "$STEAM_PATH/steamapps/compatdata/2430930"
 
-RUN groupadd -g 1000 steam \
-    && useradd -g 1000 -u 1000 -m steam \
+RUN groupadd -g $CONTAINER_GID steam \
+    && useradd -g $CONTAINER_GID -u $CONTAINER_UID -m steam \
     && apt-get update \
     && apt-get install -y \
         apt-utils \
@@ -17,7 +20,6 @@ RUN groupadd -g 1000 steam \
         ca-certificates \
         curl \
         wget \
-        procps \
         net-tools \
         vim \
         locales \
@@ -38,7 +40,7 @@ RUN groupadd -g 1000 steam \
     && apt-get clean \
     && apt-get autoremove -y
 
-ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 USER steam
 
@@ -51,8 +53,8 @@ RUN mkdir "$ARK_PATH" \
     && cp -r "${STEAM_PATH}/compatibilitytools.d/GE-Proton${GE_PROTON_VERSION}/files/share/default_pfx" "${STEAM_PATH}/steamapps/compatdata/2430930" \
     && rm "/home/steam/GE-Proton${GE_PROTON_VERSION}.tgz"
     
-ADD startup.sh /home/steam/startup.sh
+COPY entrypoint.sh /home/steam/entrypoint.sh
 
 WORKDIR /home/steam
 
-CMD ["/home/steam/startup.sh"]
+CMD ["/home/steam/entrypoint.sh"]

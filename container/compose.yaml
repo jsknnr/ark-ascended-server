@@ -1,0 +1,13 @@
+services:
+  ark-ascended:
+    image: sknnr/ark-ascended-server:latest
+    ports:
+      - "7777:7777/udp"
+      - "27020:27020/tcp"
+    env_file:
+      - default.env
+    volumes:
+      - ark-persistent-data:/home/steam/ark/ShooterGame/Saved
+
+volumes:
+  ark-persistent-data:

@@ -1,6 +1,4 @@
 #!/bin/bash
-# Update Ark Ascended
-steamcmd +@sSteamCmdForcePlatformType windows +force_install_dir "$ARK_PATH" +login anonymous +app_update 2430930 validate +quit
 
 # Make sure required arguments are set
 if [ -z "$SERVER_MAP" ]; then
@@ -27,6 +25,22 @@ if [ -z "$SERVER_ADMIN_PASSWORD" ]; then
     echo "ERROR: SERVER_ADMIN_PASSWORD environment variable must be set"
     exit 1
 fi
+
+# Check for correct ownership
+if ! touch "${ARK_PATH}/ShooterGame/Saved/test"; then
+    echo ""
+    echo "ERROR: The ownership of /home/steam/ark/ShooterGame/Saved is not correct and the server will not be able to save..."
+    echo "the directory that you are mounting into the container needs to be owned by 10000:10000 (by default)"
+    echo "from your container host attempt the following command 'chown -R 10000:10000 /your/ark/folder'"
+    echo ""
+    exit 1
+fi
+
+# Cleanup test write
+rm "${ARK_PATH}/ShooterGame/Saved/test"
+
+# Update Ark Ascended
+steamcmd +@sSteamCmdForcePlatformType windows +force_install_dir "$ARK_PATH" +login anonymous +app_update 2430930 validate +quit
 
 # Build Ark Ascended launch command
 LAUNCH_COMMAND="${SERVER_MAP}?SessionName=${SESSION_NAME}?Port=${GAME_PORT}?ServerPassword=${SERVER_PASSWORD}?ServerAdminPassword=${SERVER_ADMIN_PASSWORD}"

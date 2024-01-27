@@ -1,17 +1,15 @@
 # ark-ascended-server
-[![Push New Version](https://github.com/jsknnr/ark-ascended-server/actions/workflows/docker-publish.yaml/badge.svg)](https://github.com/jsknnr/ark-ascended-server/actions/workflows/docker-publish.yaml)<br>
+[![Static Badge](https://img.shields.io/badge/DockerHub-blue)](https://hub.docker.com/r/sknnr/ark-ascended-server) ![Docker Pulls](https://img.shields.io/docker/pulls/sknnr/ark-ascended-server) [![Static Badge](https://img.shields.io/badge/GitHub-green)](https://github.com/jsknnr/ark-ascended-server) ![GitHub Repo stars](https://img.shields.io/github/stars/jsknnr/ark-ascended-server)
 
 Containerized Ark: Survival Ascended server
 
 This project runs the Windows Ark: SA binaries in Debian 12 Linux headless with GE Proton.
 
-[Docker Hub](https://hub.docker.com/r/sknnr/ark-ascended-server)
-
-**Disclaimer:** This is not an official image. No support, implied or otherwise is offered to any end user by the author or anyone else. Feel free to do what you please with the contents of this repo. Do good.
+**Disclaimer:** This is not an official image. No support, implied or otherwise is offered to any end user by the author or anyone else. Feel free to do what you please with the contents of this repo.
 
 ## Usage
 
-The processes within the container do **NOT** run as root. Everything runs as the user steam (gid:1000/uid:1000). There is no interface at all, everything runs headless. If you exec into the container, you will drop into `/home/steam` as the steam user. Ark: SA will be installed to `/home/steam/ark`. Any persistent volumes should be mounted to `/home/steam/ark/ShooterGame/Saved`. Supervisor is used within the container to manage the server process and a secondary process to feed the server logs into stdout so they can easily be viewed. The container does include a text editor (vim) if you need to make changes to any config file. I've included a Helm chart and templates in this repo for easily running the server in a Kubernetes cluster (this is how I prefer to run my game servers). If you are not familiar with Helm or Kubernetes, that's ok, neither are required for running the container. I've also included a Makefile for quickly building and running a test instance of the container. This is intended for development and testing purposes and not for actually running the container to play. I think that about covers it.
+The processes within the container do **NOT** run as root. Everything runs as the user steam (gid:10000/uid:10000). There is no interface at all, everything runs headless. If you exec into the container, you will drop into `/home/steam` as the steam user. Ark: SA will be installed to `/home/steam/ark`. Any persistent volumes should be mounted to `/home/steam/ark/ShooterGame/Saved`. Supervisor is used within the container to manage the server process and a secondary process to feed the server logs into stdout so they can easily be viewed. The container does include a text editor (vim) if you need to make changes to any config file and net-tools if you need to debug network.
 
 ### Ports
 
@@ -43,38 +41,92 @@ If you are still running into issues, there is one potential cause that may be o
 To run the container in Docker, run the following command:
 
 ```bash
-mkdir ark-persistent-data
+docker volume create ark-persistent-data
 docker run \
   --detach \
   --name Ark-Ascended-Server \
-  --mount type=bind,source=$(pwd)/ark-persistent-data,target=/home/steam/ark/ShooterGame/Saved \
+  --mount type=volume,source=ark-persistent-data,target=/home/steam/ark/ShooterGame/Saved \
   --publish 7777:7777/udp \
   --env=SERVER_MAP=TheIsland_WP \
-  --env=SESSION_NAME="My Ark Ascended Server" \
-  --env=SERVER_PASSWORD="ChangeThisPlease" \
-  --env=SERVER_ADMIN_PASSWORD="AlsoChangeThis" \
+  --env=SESSION_NAME="Ark Ascended Containerized" \
+  --env=SERVER_PASSWORD="PleaseChangeMe" \
+  --env=SERVER_ADMIN_PASSWORD="AlsoChangeMe" \
   --env=GAME_PORT=7777 \
   sknnr/ark-ascended-server:latest
 ```
 
-If you are missing a required variable that does not have a default listed the container will error and exit.
+### Docker Compose
 
-To include non-required arguments just add a new `--env=` line to the above script.
-To use RCON you must both publish the port and add the environment variable.
-It should go without saying but, the environment variables for RCON (if you are using RCON) and Game Port should match the published ports.
+To use Docker Compose, either clone this repo or copy the `compose.yaml` and the `default.env` file out of the `container` directory to your local machine. Edit the `default.env` file to change the environment variables to the values you desire and then save the changes. You should only need to edit the `compose.yaml` if you intend to change the game and query port. Once you have made your changes, from the same directory that contains the compose and the env files.
 
-The first line of the above creates a new directory called `ark-persistent-data` in the directory you are currently in. This is the directory that will be mounted into the container that will contain your server config files and the save world. If you delete the container, this directory will persist, keeping your config files and save data. If you delete this folder, you will lose your world save.
+compose.yaml :
+```yaml
+services:
+  ark-ascended:
+    image: sknnr/ark-ascended-server:latest
+    ports:
+      - "7777:7777/udp"
+      - "27020:27020/tcp"
+    env_file:
+      - default.env
+    volumes:
+      - ark-persistent-data:/home/steam/ark/ShooterGame/Saved
 
-Depending on the performance of the computer/server where you are running the container, it may take a few minutes for the server to fully start and appear on the server list. Be sure to select unofficial servers from the list and tick the box that shows password protected servers.
-
-If you need to update the ARK: SA server binaries, you can simply stop and then start the container (or re-create it) as the binaries are checked for updates each time the container starts. For example:
-
-```bash
-docker stop Ark-Ascended-Server && docker start Ark-Ascended-Server
+volumes:
+  ark-persistent-data:
 ```
 
-Concerning Backups: The container does not currently nor do I plan to have it manage backups. Since the backup within the container would still be on the same persistent volume it seems silly without further integration to transfer the backup out of the container and to a 3rd party target such as AWS S3... which I could build integration for but I doubt most users are using AWS and if you are I am sure you could build the functionality your self. For now I recommend backing up the volume that gets mounted into the container in whichever manner you see fit.
+default.env :
+```bash
+SESSION_NAME=Ark Ascended Containerized
+SERVER_PASSWORD=PleaseChangeMe
+SERVER_MAP=TheIsland_WP
+SERVER_ADMIN_PASSWORD=AlsoChangeMe
+GAME_PORT=7777
+RCON_PORT=27020
+```
+
+To bring the container up:
+
+```bash
+docker-compose up -d
+```
+
+To bring the container down:
+
+```bash
+docker-compose down
+```
+
+### Podman
+
+To run the container in Podman, run the following command:
+
+```bash
+podman volume create ark-persistent-data
+podman run \
+  --detach \
+  --name Ark-Ascended-Server \
+  --mount type=volume,source=ark-persistent-data,target=/home/steam/ark/ShooterGame/Saved \
+  --publish 7777:7777/udp \
+  --env=SERVER_MAP=TheIsland_WP \
+  --env=SESSION_NAME="Ark Ascended Containerized" \
+  --env=SERVER_PASSWORD="PleaseChangeMe" \
+  --env=SERVER_ADMIN_PASSWORD="AlsoChangeMe" \
+  --env=GAME_PORT=7777 \
+  docker.io/sknnr/ark-ascended-server:latest
+```
 
 ### Kubernetes
 
-I've built a Helm chart and templates and have included them in the `helm` directory within this repo. Modify the `values.yaml` file to your liking and install the chart into your cluster. Be sure to create and specify a namespace as I did not include a template for provisioning a namespace.
+I've built a Helm chart and have included it in the `helm` directory within this repo. Modify the `values.yaml` file to your liking and install the chart into your cluster. Be sure to create and specify a namespace as I did not include a template for provisioning a namespace.
+
+## Troubleshooting
+
+### Connectivity
+
+If you are having issues connecting to the server once the container is deployed, I promise the issue is not with this image. You need to make sure that the ports 7777/udp and 27020/tcp (or whichever ones you decide to use) are open on your router as well as the container host where this container image is running. You will also have to port-forward the game-port and query-port from your router to the private IP address of the container host where this image is running. After this has been done correctly and you are still experiencing issues, your internet service provider (ISP) may be blocking the ports and you should contact them to troubleshoot.
+
+### Storage
+
+I recommend having Docker or Podman manage the volume that gets mounted into the container. However, if you absolutely must bind mount a directory into the container you need to make sure that on your container host the directory you are bind mounting is owned by 10000:10000 by default (`chown -R 10000:10000 /path/to/directory`). If the ownership of the directory is not correct the container will not start as the server will be unable to persist the savegame.
