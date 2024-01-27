@@ -5,7 +5,7 @@ serviceType: LoadBalancer
 resources:
   requests:
     memory: 24G
-    cpu: 8.0
+    cpu: 4.0
 volumes:
   dataPVC:
     size: 50Gi
