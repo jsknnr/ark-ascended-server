@@ -4,8 +4,13 @@ services:
     ports:
       - "7777:7777/udp"
       - "27020:27020/tcp"
-    env_file:
-      - default.env
+    environment:
+      - SESSION_NAME=Ark Ascended Containerized
+      - SERVER_PASSWORD=PleaseChangeMe
+      - SERVER_MAP=TheIsland_WP
+      - SERVER_ADMIN_PASSWORD=AlsoChangeMe
+      - GAME_PORT=7777
+      - RCON_PORT=27020
     volumes:
       - ark-persistent-data:/home/steam/ark/ShooterGame/Saved
 
