@@ -9,7 +9,7 @@ This project runs the Windows Ark: SA binaries in Debian 12 Linux headless with 
 
 ## Usage
 
-The processes within the container do **NOT** run as root. Everything runs as the user steam (gid:10000/uid:10000). There is no interface at all, everything runs headless. If you exec into the container, you will drop into `/home/steam` as the steam user. Ark: SA will be installed to `/home/steam/ark`. Any persistent volumes should be mounted to `/home/steam/ark/ShooterGame/Saved`. Supervisor is used within the container to manage the server process and a secondary process to feed the server logs into stdout so they can easily be viewed. The container does include a text editor (vim) if you need to make changes to any config file and net-tools if you need to debug network.
+The processes within the container do **NOT** run as root. Everything runs as the user steam (gid:10000/uid:10000). There is no interface at all, everything runs headless. If you exec into the container, you will drop into `/home/steam` as the steam user. Ark: SA will be installed to `/home/steam/ark`. Any persistent volumes should be mounted to `/home/steam/ark/ShooterGame/Saved`.
 
 ### Ports
 
@@ -57,7 +57,7 @@ docker run \
 
 ### Docker Compose
 
-To use Docker Compose, either clone this repo or copy the `compose.yaml` and the `default.env` file out of the `container` directory to your local machine. Edit the `default.env` file to change the environment variables to the values you desire and then save the changes. You should only need to edit the `compose.yaml` if you intend to change the game and query port. Once you have made your changes, from the same directory that contains the compose and the env files.
+To use Docker Compose, either clone this repo or copy the `compose.yaml` file out of the `container` directory to your local machine. Edit the compose file to change the environment variables to the values you desire and then save the changes. Once you have made your changes, from the same directory that contains the compose and the env files.
 
 compose.yaml :
 ```yaml
@@ -67,23 +67,19 @@ services:
     ports:
       - "7777:7777/udp"
       - "27020:27020/tcp"
-    env_file:
-      - default.env
+    environment:
+      - SESSION_NAME=Ark Ascended Containerized
+      - SERVER_PASSWORD=PleaseChangeMe
+      - SERVER_MAP=TheIsland_WP
+      - SERVER_ADMIN_PASSWORD=AlsoChangeMe
+      - GAME_PORT=7777
+      - RCON_PORT=27020
     volumes:
       - ark-persistent-data:/home/steam/ark/ShooterGame/Saved
 
 volumes:
   ark-persistent-data:
-```
 
-default.env :
-```bash
-SESSION_NAME=Ark Ascended Containerized
-SERVER_PASSWORD=PleaseChangeMe
-SERVER_MAP=TheIsland_WP
-SERVER_ADMIN_PASSWORD=AlsoChangeMe
-GAME_PORT=7777
-RCON_PORT=27020
 ```
 
 To bring the container up:

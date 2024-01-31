@@ -1,56 +1,58 @@
-FROM debian:12
+FROM debian:12-slim
 
 ARG CONTAINER_GID=10000
 ARG CONTAINER_UID=10000
 
 ENV DEBIAN_FRONTEND "noninteractive"
-ENV STEAM_PATH "/home/steam/.local/share/Steam"
+ENV STEAM_APP_ID "2430930"
+ENV HOME "/home/steam"
+ENV STEAM_PATH "/home/steam/Steam"
 ENV ARK_PATH "/home/steam/ark"
-ENV GE_PROTON_VERSION "8-27"
+ENV GE_PROTON_VERSION "8-30"
 ENV GE_PROTON_URL "https://github.com/GloriousEggroll/proton-ge-custom/releases/download/GE-Proton${GE_PROTON_VERSION}/GE-Proton${GE_PROTON_VERSION}.tar.gz"
-ENV STEAM_COMPAT_CLIENT_INSTALL_PATH "$STEAM_PATH"
-ENV STEAM_COMPAT_DATA_PATH "$STEAM_PATH/steamapps/compatdata/2430930"
+ENV STEAM_COMPAT_CLIENT_INSTALL_PATH "${STEAM_PATH}"
+ENV STEAM_COMPAT_DATA_PATH "${STEAM_PATH}/steamapps/compatdata/${STEAM_APP_ID}"
 
 RUN groupadd -g $CONTAINER_GID steam \
     && useradd -g $CONTAINER_GID -u $CONTAINER_UID -m steam \
-    && apt-get update \
-    && apt-get install -y \
-        apt-utils \
-        software-properties-common \
-        ca-certificates \
-        curl \
-        wget \
-        net-tools \
-        vim \
-        locales \
-        supervisor \
-    && echo 'LANG="en_US.UTF-8"' > /etc/default/locale \
-    && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
-    && locale-gen \
-    && dpkg --add-architecture i386 \
     && sed -i 's#^Components: .*#Components: main non-free contrib#g' /etc/apt/sources.list.d/debian.sources \
     && echo steam steam/question select "I AGREE" | debconf-set-selections \
     && echo steam steam/license note '' | debconf-set-selections \
+    && dpkg --add-architecture i386 \
     && apt-get update \
-    && apt-get install -y \
+    && apt-get install --no-install-recommends -y \
+        ca-certificates \
+        wget \
+        locales \
         lib32gcc-s1 \
         steamcmd \
+        winbind \
+        dbus \
+        libfreetype6 \
+    && echo 'LANG="en_US.UTF-8"' > /etc/default/locale \
+    && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
+    && locale-gen \
+    && rm -f /etc/machine-id \
+    && dbus-uuidgen --ensure=/etc/machine-id \
     && ln -s /usr/games/steamcmd /usr/bin/steamcmd \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean \
     && apt-get autoremove -y
-
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 USER steam
 
 RUN mkdir "$ARK_PATH" \
     && mkdir -p "${ARK_PATH}/ShooterGame/Saved" \
     && mkdir -p "${STEAM_PATH}/compatibilitytools.d" \
-    && mkdir -p "${STEAM_PATH}/steamapps/compatdata" \
+    && mkdir -p "${STEAM_PATH}/steamapps/compatdata/${STEAM_APP_ID}" \
+    && mkdir -p "${HOME}/.steam" \
+    && steamcmd +quit \
+    && ln -s "${HOME}/.local/share/Steam/steamcmd/linux32" "${HOME}/.steam/sdk32" \
+    && ln -s "${HOME}/.local/share/Steam/steamcmd/linux64" "${HOME}/.steam/sdk64" \
+    && ln -s "${HOME}/.steam/sdk32/steamclient.so" "${HOME}/.steam/sdk32/steamservice.so" \
+    && ln -s "${HOME}/.steam/sdk64/steamclient.so" "${HOME}/.steam/sdk64/steamservice.so" \
     && wget "$GE_PROTON_URL" -O "/home/steam/GE-Proton${GE_PROTON_VERSION}.tgz" \
     && tar -x -C "${STEAM_PATH}/compatibilitytools.d/" -f "/home/steam/GE-Proton${GE_PROTON_VERSION}.tgz" \
-    && cp -r "${STEAM_PATH}/compatibilitytools.d/GE-Proton${GE_PROTON_VERSION}/files/share/default_pfx" "${STEAM_PATH}/steamapps/compatdata/2430930" \
     && rm "/home/steam/GE-Proton${GE_PROTON_VERSION}.tgz"
     
 COPY entrypoint.sh /home/steam/entrypoint.sh
