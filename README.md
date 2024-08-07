@@ -28,7 +28,7 @@ If you are still running into issues, there is one potential cause that may be o
 | ---- | ----------- | ------- | -------- |
 | SERVER_MAP | The map that the server runs | TheIsland_WP | True |
 | SESSION_NAME | The name for you server/session | None | True |
-| SERVER_PASSWORD | The password to join your server | None | True |
+| SERVER_PASSWORD | The password to join your server | None | False |
 | SERVER_ADMIN_PASSWORD | The password for utilizing admin functions | None | True |
 | GAME_PORT | This is the port that the server accepts incoming traffic on | 7777 | True |
 | RCON_PORT | The port for the RCON service to listen on | 27020 | False |
