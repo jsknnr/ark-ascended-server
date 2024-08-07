@@ -21,7 +21,6 @@ jobs:
           file: Containerfile
           push: false
           build-args: |
-            IMAGE_VERSION=${{ github.event.release.tag_name }}
+            IMAGE_VERSION=test
           tags: |
-            ${{ secrets.DOCKER_USER }}/ark-ascended-server:latest
-            ${{ secrets.DOCKER_TOKEN }}/ark-ascended-server-${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKER_USER }}/ark-ascended-server:test
