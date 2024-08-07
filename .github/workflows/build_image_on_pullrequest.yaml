@@ -12,8 +12,8 @@ jobs:
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_TOKEN }}
       - name: Build
         uses: docker/build-push-action@v6
         with:
@@ -23,5 +23,5 @@ jobs:
           build-args: |
             IMAGE_VERSION=${{ github.event.release.tag_name }}
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/ark-ascended-server:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/ark-ascended-server-${{ github.event.release.tag_name }}
+            ${{ secrets.DOCKER_USER }}/ark-ascended-server:latest
+            ${{ secrets.DOCKER_TOKEN }}/ark-ascended-server-${{ github.event.release.tag_name }}
