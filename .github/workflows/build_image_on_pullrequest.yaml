@@ -1,7 +1,7 @@
-name: Build and push Docker image
+name: Build image on pull-request
 on:
-  release:
-    types: [published]
+  pull_request:
+    types: [opened, synchronize]
 
 jobs:
   build-push:
@@ -14,12 +14,12 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
+      - name: Build
         uses: docker/build-push-action@v6
         with:
           context: "{{defaultContext}}:/container"
           file: Containerfile
-          push: true
+          push: false
           build-args: |
             IMAGE_VERSION=${{ github.event.release.tag_name }}
           tags: |

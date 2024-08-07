@@ -1,5 +1,8 @@
 FROM debian:12-slim
 
+ARG IMAGE_VERSION="v1.0.0-devel"
+ARG MAINTAINER="https://github.com/jsknnr/ark-ascended-server"
+
 ARG CONTAINER_GID=10000
 ARG CONTAINER_UID=10000
 
@@ -25,16 +28,23 @@ RUN groupadd -g $CONTAINER_GID steam \
         wget \
         locales \
         lib32gcc-s1 \
+        procps \
         steamcmd \
         winbind \
         dbus \
         libfreetype6 \
+        net-tools \
     && echo 'LANG="en_US.UTF-8"' > /etc/default/locale \
     && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen \
     && locale-gen \
     && rm -f /etc/machine-id \
     && dbus-uuidgen --ensure=/etc/machine-id \
     && ln -s /usr/games/steamcmd /usr/bin/steamcmd \
+    && wget https://github.com/gorcon/rcon-cli/releases/download/v0.10.3/rcon-0.10.3-amd64_linux.tar.gz \
+    && tar xzf rcon-0.10.3-amd64_linux.tar.gz \
+    && rm -f rcon-0.10.3-amd64_linux.tar.gz \
+    && mv rcon-0.10.3-amd64_linux/rcon /usr/local/bin \
+    && rm -rf ./rcon-0.10.3-amd64_linux \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean \
     && apt-get autoremove -y
@@ -53,7 +63,10 @@ RUN mkdir "$ARK_PATH" \
     && ln -s "${HOME}/.steam/sdk64/steamclient.so" "${HOME}/.steam/sdk64/steamservice.so" \
     && wget "$GE_PROTON_URL" -O "/home/steam/GE-Proton${GE_PROTON_VERSION}.tgz" \
     && tar -x -C "${STEAM_PATH}/compatibilitytools.d/" -f "/home/steam/GE-Proton${GE_PROTON_VERSION}.tgz" \
-    && rm "/home/steam/GE-Proton${GE_PROTON_VERSION}.tgz"
+    && rm "/home/steam/GE-Proton${GE_PROTON_VERSION}.tgz" \
+    && echo "${IMAGE_VERSION}" > /home/steam/image_version \
+    && echo "${MAINTAINER}" > /home/steam/image_maintainer \
+    && echo "${CONTAINER_UID}:${CONTAINER_GID}" > /home/steam/expected_filesystem_permissions
     
 COPY entrypoint.sh /home/steam/entrypoint.sh
 
