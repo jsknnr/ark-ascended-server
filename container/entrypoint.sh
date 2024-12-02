@@ -72,9 +72,6 @@ if ! touch "${ARK_PATH}/ShooterGame/Saved/test"; then
     exit 1
 fi
 
-# Cleanup test write
-rm "${ARK_PATH}/ShooterGame/Saved/test"
-
 # Update Ark Ascended
 echo "$(timestamp) INFO: Updating Ark Survival Ascended Dedicated Server"
 steamcmd +@sSteamCmdForcePlatformType windows +force_install_dir "$ARK_PATH" +login anonymous +app_update 2430930 validate +quit
@@ -84,6 +81,9 @@ if [ $? != 0 ]; then
     echo "$(timestamp) ERROR: steamcmd was unable to successfully initialize and update Ark Survival Ascended Dedicated Server"
     exit 1
 fi
+
+# Cleanup test write
+rm "${ARK_PATH}/ShooterGame/Saved/test"
 
 # Check that log directory exists, if not create
 if ! [ -d "${ARK_PATH}/ShooterGame/Saved/Logs/" ]; then
