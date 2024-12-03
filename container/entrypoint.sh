@@ -81,6 +81,7 @@ LOG_FILENAME="ShooterGame_${SERVER_MAP}"
 ARK_SAVE_PATH="${ARK_PATH}/ShooterGame/Saved/SavedArks/${SERVER_MAP}"
 
 # can be used by startup healthcheck probes
+mkdir -p "${ARK_SAVE_PATH}"
 touch "${ARK_SAVE_PATH}/.pre-setup"
 
 if [ "$AUTO_UPDATE" == "true" ]; then
