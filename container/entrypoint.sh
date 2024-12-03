@@ -19,7 +19,7 @@ shutdown () {
     done
 
     echo "$(timestamp) INFO: Goodbye"
-    kill -15 $asa_pid 
+    kill -15 $asa_pid
 }
 
 # Set our trap
@@ -63,7 +63,7 @@ if [ -z "$SERVER_ADMIN_PASSWORD" ]; then
 fi
 
 # Check for correct ownership
-if ! touch "${ARK_PATH}/ShooterGame/Saved/test"; then
+if ! touch "${ARK_PATH}/ShooterGame/Saved/.perm-test"; then
     echo ""
     echo "$(timestamp) ERROR: The ownership of /home/steam/ark/ShooterGame/Saved is not correct and the server will not be able to save..."
     echo "the directory that you are mounting into the container needs to be owned by ${EXPECTED_FS_PERMS}"
@@ -73,16 +73,40 @@ if ! touch "${ARK_PATH}/ShooterGame/Saved/test"; then
 fi
 
 # Cleanup test write
-rm "${ARK_PATH}/ShooterGame/Saved/test"
+rm "${ARK_PATH}/ShooterGame/Saved/.perm-test"
 
-# Update Ark Ascended
-echo "$(timestamp) INFO: Updating Ark Survival Ascended Dedicated Server"
-steamcmd +@sSteamCmdForcePlatformType windows +force_install_dir "$ARK_PATH" +login anonymous +app_update 2430930 validate +quit
 
-# Check that steamcmd was successful
-if [ $? != 0 ]; then
-    echo "$(timestamp) ERROR: steamcmd was unable to successfully initialize and update Ark Survival Ascended Dedicated Server"
-    exit 1
+AUTO_UPDATE=${AUTO_UPDATE:-true}
+LOG_FILENAME="ShooterGame_${SERVER_MAP}"
+ARK_SAVE_PATH="${ARK_PATH}/ShooterGame/Saved/SavedArks/${SERVER_MAP}"
+
+# can be used by startup healthcheck probes
+touch "${ARK_SAVE_PATH}/.pre-setup"
+
+if [ "$AUTO_UPDATE" == "true" ]; then
+    if [ -f "${ARK_PATH}/ShooterGame/.update-lock" ]; then
+        echo "$(timestamp) INFO: Another instance is updating Ark Survival Ascended Dedicated Server"
+        while [ -f "${ARK_PATH}/ShooterGame/.update-lock" ]; do
+            echo "$(timestamp) INFO: Waiting for Update Completion"
+            sleep 10
+        done
+    else
+        touch "${ARK_PATH}/ShooterGame/.update-lock"
+
+        # Update Ark Ascended
+        echo "$(timestamp) INFO: Updating Ark Survival Ascended Dedicated Server"
+        steamcmd +@sSteamCmdForcePlatformType windows +force_install_dir "$ARK_PATH" +login anonymous +app_update 2430930 validate +quit
+
+        # Check that steamcmd was successful
+        if [ $? != 0 ]; then
+            echo "$(timestamp) ERROR: steamcmd was unable to successfully initialize and update Ark Survival Ascended Dedicated Server"
+            exit 1
+        fi
+
+        rm "${ARK_PATH}/ShooterGame/.update-lock"
+    fi
+else
+    echo "$(timestamp) INFO: Skiping Update for Ark Survival Ascended Dedicated Server"
 fi
 
 # Check that log directory exists, if not create
@@ -91,12 +115,12 @@ if ! [ -d "${ARK_PATH}/ShooterGame/Saved/Logs/" ]; then
 fi
 
 # Check that log file exists, if not create
-if ! [ -f "${ARK_PATH}/ShooterGame/Saved/Logs/ShooterGame.log" ]; then
-    touch "${ARK_PATH}/ShooterGame/Saved/Logs/ShooterGame.log"
+if ! [ -f "${ARK_PATH}/ShooterGame/Saved/Logs/${LOG_FILENAME}.log" ]; then
+    touch "${ARK_PATH}/ShooterGame/Saved/Logs/${LOG_FILENAME}.log"
 fi
 
 # Link logfile to stdout of pid 1 so we can see logs
-ln -sf /proc/1/fd/1 "${ARK_PATH}/ShooterGame/Saved/Logs/ShooterGame.log"
+ln -sf /proc/1/fd/1 "${ARK_PATH}/ShooterGame/Saved/Logs/${LOG_FILENAME}.log"
 
 # Build Ark Ascended launch command
 LAUNCH_COMMAND="${SERVER_MAP}?SessionName=${SESSION_NAME}?RCONEnabled=True?RCONPort=${RCON_PORT}"
@@ -171,6 +195,9 @@ echo "Mods: ${MODS}"
 echo "Server Container Image Version: ${IMAGE_VERSION}"
 echo ""
 echo ""
+
+# clean up healthcheck probe file
+rm "${ARK_SAVE_PATH}/.pre-setup"
 
 # Launch ASE Server in Proton
 ${STEAM_PATH}/compatibilitytools.d/GE-Proton${GE_PROTON_VERSION}/proton run ${ARK_PATH}/ShooterGame/Binaries/Win64/ArkAscendedServer.exe ${LAUNCH_COMMAND} &
