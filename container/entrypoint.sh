@@ -73,7 +73,7 @@ if ! touch "${ARK_PATH}/ShooterGame/Saved/.perm-test"; then
 fi
 
 # Cleanup test write
-rm "${ARK_PATH}/ShooterGame/Saved/.perm-test"
+rm -f "${ARK_PATH}/ShooterGame/Saved/.perm-test"
 
 
 AUTO_UPDATE=${AUTO_UPDATE:-true}
@@ -85,26 +85,14 @@ mkdir -p "${ARK_SAVE_PATH}"
 touch "${ARK_SAVE_PATH}/.pre-setup"
 
 if [ "$AUTO_UPDATE" == "true" ]; then
-    if [ -f "${ARK_PATH}/ShooterGame/.update-lock" ]; then
-        echo "$(timestamp) INFO: Another instance is updating Ark Survival Ascended Dedicated Server"
-        while [ -f "${ARK_PATH}/ShooterGame/.update-lock" ]; do
-            echo "$(timestamp) INFO: Waiting for Update Completion"
-            sleep 10
-        done
-    else
-        touch "${ARK_PATH}/ShooterGame/.update-lock"
+    # Update Ark Ascended
+    echo "$(timestamp) INFO: Updating Ark Survival Ascended Dedicated Server"
+    steamcmd +@sSteamCmdForcePlatformType windows +force_install_dir "$ARK_PATH" +login anonymous +app_update 2430930 validate +quit
 
-        # Update Ark Ascended
-        echo "$(timestamp) INFO: Updating Ark Survival Ascended Dedicated Server"
-        steamcmd +@sSteamCmdForcePlatformType windows +force_install_dir "$ARK_PATH" +login anonymous +app_update 2430930 validate +quit
-
-        # Check that steamcmd was successful
-        if [ $? != 0 ]; then
-            echo "$(timestamp) ERROR: steamcmd was unable to successfully initialize and update Ark Survival Ascended Dedicated Server"
-            exit 1
-        fi
-
-        rm "${ARK_PATH}/ShooterGame/.update-lock"
+    # Check that steamcmd was successful
+    if [ $? != 0 ]; then
+        echo "$(timestamp) ERROR: steamcmd was unable to successfully initialize and update Ark Survival Ascended Dedicated Server"
+        exit 1
     fi
 else
     echo "$(timestamp) INFO: Skiping Update for Ark Survival Ascended Dedicated Server"
