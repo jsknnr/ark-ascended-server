@@ -77,7 +77,6 @@ rm -f "${ARK_PATH}/ShooterGame/Saved/.perm-test"
 
 
 AUTO_UPDATE=${AUTO_UPDATE:-true}
-LOG_FILENAME="ShooterGame_${SERVER_MAP}"
 ARK_SAVE_PATH="${ARK_PATH}/ShooterGame/Saved/SavedArks/${SERVER_MAP}"
 
 # can be used by startup healthcheck probes
@@ -104,12 +103,12 @@ if ! [ -d "${ARK_PATH}/ShooterGame/Saved/Logs/" ]; then
 fi
 
 # Check that log file exists, if not create
-if ! [ -f "${ARK_PATH}/ShooterGame/Saved/Logs/${LOG_FILENAME}.log" ]; then
-    touch "${ARK_PATH}/ShooterGame/Saved/Logs/${LOG_FILENAME}.log"
+if ! [ -f "${ARK_PATH}/ShooterGame/Saved/Logs/ShooterGame.log" ]; then
+    touch "${ARK_PATH}/ShooterGame/Saved/Logs/ShooterGame.log"
 fi
 
 # Link logfile to stdout of pid 1 so we can see logs
-ln -sf /proc/1/fd/1 "${ARK_PATH}/ShooterGame/Saved/Logs/${LOG_FILENAME}.log"
+ln -sf /proc/1/fd/1 "${ARK_PATH}/ShooterGame/Saved/Logs/ShooterGame.log"
 
 # Build Ark Ascended launch command
 LAUNCH_COMMAND="${SERVER_MAP}?SessionName=${SESSION_NAME}?RCONEnabled=True?RCONPort=${RCON_PORT}"
